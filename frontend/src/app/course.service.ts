@@ -1,28 +1,29 @@
 import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import gql from 'graphql-tag';
+import { map, filter } from 'rxjs/operators';
 
-import { IQuery, ICourse } from './types';
-import { map } from 'rxjs/operators';
+import { Query, Course } from './types';
 
 @Injectable()
 export class CourseService {
 
   constructor(private apollo: Apollo) { }
 
-
-  getAllCourses(searchTerm: string) {
-    return this.apollo.watchQuery<IQuery>({
+  getAllCourses(searchTerm: String) {
+    return this.apollo.watchQuery<Query>({
       pollInterval: 500,
       query: gql`
         query allCourses($searchTerm: String) {
-          id
-          title
-          author
-          description
-          topic
-          url
-          voteCount
+          allCourses(searchTerm: $searchTerm) {
+            id
+            title
+            author
+            description
+            topic
+            url
+            voteCount
+          }
         }
       `,
       variables: {
@@ -31,14 +32,14 @@ export class CourseService {
     })
       .valueChanges
       .pipe(
-        map(res => res.data.allCourses)
+        map(result => result.data.allCourses)
       );
   }
 
   upvoteCourse(id: string) {
     return this.apollo.mutate({
       mutation: gql`
-        mutation upvote($id: string!) {
+        mutation upvote($id: String!) {
           upvote(id: $id) {
             id
             title
@@ -51,4 +52,22 @@ export class CourseService {
       }
     });
   }
+
+  downvoteCourse(id: string) {
+    return this.apollo.mutate({
+      mutation: gql`
+        mutation downvote($id: String!) {
+          downvote(id: $id) {
+            id
+            title
+            voteCount
+          }
+        }
+      `,
+      variables: {
+        id: id
+      }
+    });
+  }
+
 }

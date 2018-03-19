@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, OnChanges } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
-import { ICourse } from '../types';
+import { Course } from '../types';
 import { CourseService } from '../course.service';
 
 @Component({
@@ -10,22 +10,18 @@ import { CourseService } from '../course.service';
   styleUrls: ['./list.component.css']
 })
 export class ListComponent implements OnInit, OnChanges {
-  @Input() searchTerm: string;
+  @Input() searchTerm: String;
 
-  courses$: Observable<ICourse[]>;
+  courses: Observable<Course[]>;
 
   constructor(private courseService: CourseService) { }
 
   ngOnInit() {
-    this.getCourses(this.searchTerm);
+    this.courses = this.courseService.getAllCourses(this.searchTerm);
   }
 
   ngOnChanges() {
-    this.getCourses(this.searchTerm);
-  }
-
-  getCourses(searchTerm) {
-    this.courses$ = this.courseService.getAllCourses(searchTerm);
+    this.courses = this.courseService.getAllCourses(this.searchTerm);
   }
 
 }
